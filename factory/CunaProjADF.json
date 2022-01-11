@@ -1,0 +1,9 @@
+{
+	"name": "CunaProjADF",
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "a5227e5c-9139-4c0a-949a-b26bf3fe86e7",
+		"tenantId": "513294a0-3e20-41b2-a970-6d30bf1546fa"
+	}
+}
