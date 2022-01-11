@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schema---management.azure.com.rproxy.goskope.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "ahub-d-adf-vazacprocd01-integrations"
+        },
+        "AzureSqlDatabase_AnnuityDataHub_connectionString": {
+            "value": ""
+        },
+        "AzureSqlDatabase_PolyFeeds_PricingSpread_connectionString": {
+            "value": ""
+        },
+        "SqlServer_PolyFeeds_PricingSpread_connectionString": {
+            "value": ""
+        },
+        "SqlServer_PolyFeeds_PricingSpread_password": {
+            "value": ""
+        },
+        "FileServer_Axis_password": {
+            "value": ""
+        },
+        "FileServer_TrueComp_password": {
+            "value": ""
+        },
+        "AzureDataLakeStorage_AnnuityHub_accountKey": {
+            "value": ""
+        },
+        "SaaHubAxis_accountKey": {
+            "value": ""
+        },
+        "SqlServer_PolyFeeds_PricingSpread_properties_typeProperties_userName": {
+            "value": "CMUTUAL\\SA-AXIS-D"
+        },
+        "FileServer_Axis_properties_typeProperties_host": {
+            "value": "\\\\vazaxisd01\\data\\axis"
+        },
+        "FileServer_Axis_properties_typeProperties_userId": {
+            "value": "CMUTUAL\\SA-AXIS-D"
+        },
+        "FileServer_TrueComp_properties_typeProperties_host": {
+            "value": "\\\\vabpolyitd11\\apps\\Axis\\ZIA\\Input"
+        },
+        "FileServer_TrueComp_properties_typeProperties_userId": {
+            "value": "CMUTUAL\\sa-axis-d"
+        },
+        "AzureDataLakeStorage_AnnuityHub_properties_typeProperties_url": {
+            "value": "https://adlsannuityhubstore---dfs---core.windows.net.rproxy.goskope.com/"
+        },
+        "SaaHubAxis_properties_typeProperties_url": {
+            "value": "https://saahubaxis---dfs---core.windows.net.rproxy.goskope.com"
+        },
+        "containerUri": {
+            "value": ""
+        },
+        "containerSasToken": {
+            "value": ""
+        }
+    }
+}

@@ -1,0 +1,187 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "ahub-d-adf-vazacprocd01-integrations"
+        },
+        "AzureSqlDatabase_AnnuityDataHub_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_AnnuityDataHub'"
+        },
+        "AzureSqlDatabase_PolyFeeds_PricingSpread_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_PolyFeeds_PricingSpread'"
+        },
+        "SqlServer_PolyFeeds_PricingSpread_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'SqlServer_PolyFeeds_PricingSpread'"
+        },
+        "SqlServer_PolyFeeds_PricingSpread_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'SqlServer_PolyFeeds_PricingSpread'"
+        },
+        "FileServer_Axis_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'FileServer_Axis'"
+        },
+        "FileServer_TrueComp_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'FileServer_TrueComp'"
+        },
+        "AzureDataLakeStorage_AnnuityHub_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage_AnnuityHub'"
+        },
+        "SaaHubAxis_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'SaaHubAxis'"
+        },
+        "SqlServer_PolyFeeds_PricingSpread_properties_typeProperties_userName": {
+            "type": "string",
+            "defaultValue": "CMUTUAL\\SA-AXIS-D"
+        },
+        "FileServer_Axis_properties_typeProperties_host": {
+            "type": "string",
+            "defaultValue": "\\\\vazaxisd01\\data\\axis"
+        },
+        "FileServer_Axis_properties_typeProperties_userId": {
+            "type": "string",
+            "defaultValue": "CMUTUAL\\SA-AXIS-D"
+        },
+        "FileServer_TrueComp_properties_typeProperties_host": {
+            "type": "string",
+            "defaultValue": "\\\\vabpolyitd11\\apps\\Axis\\ZIA\\Input"
+        },
+        "FileServer_TrueComp_properties_typeProperties_userId": {
+            "type": "string",
+            "defaultValue": "CMUTUAL\\sa-axis-d"
+        },
+        "AzureDataLakeStorage_AnnuityHub_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://adlsannuityhubstore---dfs---core.windows.net.rproxy.goskope.com/"
+        },
+        "SaaHubAxis_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://saahubaxis---dfs---core.windows.net.rproxy.goskope.com"
+        },
+        "containerUri": {
+            "type": "string",
+            "metadata": "URI to storage account containing linked ARM templates"
+        },
+        "containerSasToken": {
+            "type": "string",
+            "metadata": "Sas token to storage account containing linked ARM templates"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "ahub-d-adf-vazacprocd01-integrations_ArmTemplate_0",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    },
+                    "AzureDataLakeStorage_AnnuityHub_accountKey": {
+                        "value": "[parameters('AzureDataLakeStorage_AnnuityHub_accountKey')]"
+                    },
+                    "SaaHubAxis_accountKey": {
+                        "value": "[parameters('SaaHubAxis_accountKey')]"
+                    },
+                    "AzureSqlDatabase_AnnuityDataHub_connectionString": {
+                        "value": "[parameters('AzureSqlDatabase_AnnuityDataHub_connectionString')]"
+                    },
+                    "AzureSqlDatabase_PolyFeeds_PricingSpread_connectionString": {
+                        "value": "[parameters('AzureSqlDatabase_PolyFeeds_PricingSpread_connectionString')]"
+                    },
+                    "SqlServer_PolyFeeds_PricingSpread_connectionString": {
+                        "value": "[parameters('SqlServer_PolyFeeds_PricingSpread_connectionString')]"
+                    },
+                    "SqlServer_PolyFeeds_PricingSpread_password": {
+                        "value": "[parameters('SqlServer_PolyFeeds_PricingSpread_password')]"
+                    },
+                    "FileServer_Axis_password": {
+                        "value": "[parameters('FileServer_Axis_password')]"
+                    },
+                    "FileServer_TrueComp_password": {
+                        "value": "[parameters('FileServer_TrueComp_password')]"
+                    },
+                    "AzureDataLakeStorage_AnnuityHub_properties_typeProperties_url": {
+                        "value": "[parameters('AzureDataLakeStorage_AnnuityHub_properties_typeProperties_url')]"
+                    },
+                    "SaaHubAxis_properties_typeProperties_url": {
+                        "value": "[parameters('SaaHubAxis_properties_typeProperties_url')]"
+                    },
+                    "SqlServer_PolyFeeds_PricingSpread_properties_typeProperties_userName": {
+                        "value": "[parameters('SqlServer_PolyFeeds_PricingSpread_properties_typeProperties_userName')]"
+                    },
+                    "FileServer_Axis_properties_typeProperties_host": {
+                        "value": "[parameters('FileServer_Axis_properties_typeProperties_host')]"
+                    },
+                    "FileServer_Axis_properties_typeProperties_userId": {
+                        "value": "[parameters('FileServer_Axis_properties_typeProperties_userId')]"
+                    },
+                    "FileServer_TrueComp_properties_typeProperties_host": {
+                        "value": "[parameters('FileServer_TrueComp_properties_typeProperties_host')]"
+                    },
+                    "FileServer_TrueComp_properties_typeProperties_userId": {
+                        "value": "[parameters('FileServer_TrueComp_properties_typeProperties_userId')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "ahub-d-adf-vazacprocd01-integrations_ArmTemplate_1",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'ahub-d-adf-vazacprocd01-integrations_ArmTemplate_0')]"
+            ]
+        },
+        {
+            "name": "ahub-d-adf-vazacprocd01-integrations_ArmTemplate_2",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'ahub-d-adf-vazacprocd01-integrations_ArmTemplate_1')]"
+            ]
+        }
+    ]
+}

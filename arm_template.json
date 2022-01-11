@@ -1,0 +1,3930 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "ahub-d-adf-vazacprocd01-integrations"
+        },
+        "AzureSqlDatabase_AnnuityDataHub_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_AnnuityDataHub'"
+        },
+        "AzureSqlDatabase_PolyFeeds_PricingSpread_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase_PolyFeeds_PricingSpread'"
+        },
+        "SqlServer_PolyFeeds_PricingSpread_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'SqlServer_PolyFeeds_PricingSpread'"
+        },
+        "SqlServer_PolyFeeds_PricingSpread_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'SqlServer_PolyFeeds_PricingSpread'"
+        },
+        "FileServer_Axis_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'FileServer_Axis'"
+        },
+        "FileServer_TrueComp_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'FileServer_TrueComp'"
+        },
+        "AzureDataLakeStorage_AnnuityHub_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage_AnnuityHub'"
+        },
+        "SaaHubAxis_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'SaaHubAxis'"
+        },
+        "SqlServer_PolyFeeds_PricingSpread_properties_typeProperties_userName": {
+            "type": "string",
+            "defaultValue": "CMUTUAL\\SA-AXIS-D"
+        },
+        "FileServer_Axis_properties_typeProperties_host": {
+            "type": "string",
+            "defaultValue": "\\\\vazaxisd01\\data\\axis"
+        },
+        "FileServer_Axis_properties_typeProperties_userId": {
+            "type": "string",
+            "defaultValue": "CMUTUAL\\SA-AXIS-D"
+        },
+        "FileServer_TrueComp_properties_typeProperties_host": {
+            "type": "string",
+            "defaultValue": "\\\\vabpolyitd11\\apps\\Axis\\ZIA\\Input"
+        },
+        "FileServer_TrueComp_properties_typeProperties_userId": {
+            "type": "string",
+            "defaultValue": "CMUTUAL\\sa-axis-d"
+        },
+        "AzureDataLakeStorage_AnnuityHub_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://adlsannuityhubstore---dfs---core.windows.net.rproxy.goskope.com/"
+        },
+        "SaaHubAxis_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://saahubaxis---dfs---core.windows.net.rproxy.goskope.com"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/Fund')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "FundId",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "FundName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FundType",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CreateUser",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CreateTimestamp",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ModifyUser",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ModifyTimestamp",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "Fund"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Generic_File')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage_AnnuityHub",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "file_name": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Files"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().file_name",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "annuityhub-to-axis-files"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage_AnnuityHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Generic_Table')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "table_name": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": {
+                        "value": "@dataset().table_name",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AnnuityData')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "AnnuityDataSKey",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "PolicyNo",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Channel",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CellName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Gender",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CunaFundIndicator",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "IssueAge",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "IssueYear",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "IssueMonth",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "IssueDay",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "PolicySize",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CurrentPhaseNumber",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "PricingMort",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "StatMort",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CompOptionCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CommTableValue",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CashValueAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CurrentSNDLFVAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "SNFLTermNumber",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "SNFLRate",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "WithdrawalsYTDNumber",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "GuaranteePeriodInMonths",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "TermNumber",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "HedgeBudgetAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "RCTargetAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "VARTargetAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "SPRCTargetAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "EAFERCTargetAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "SPGrowthTargetAmount",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "SPSecureTargetAmount",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "EAFEGrowthTargetAmount",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "EAFESecureTargetAmount",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "TotalPremiumAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "DepositCappingRateOne",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositCappingRateTwo",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositCappingRateThree",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositCappingRateFour",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositFloorRateOne",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositFloorRateTwo",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositFloorRateThree",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositFloorRateFour",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PriorAnniversaryAVAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 4
+                    },
+                    {
+                        "name": "CompanyCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "IssueState",
+                        "type": "char"
+                    },
+                    {
+                        "name": "ResidentState",
+                        "type": "char"
+                    },
+                    {
+                        "name": "PremiumModeCode",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "CunaPolicyStatus",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CunaPaidUpIndicator",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CunaTaxQualCode",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CunaCreditUnionId",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "CunaIndexPeriod",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "CunaOneYearIndicator",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "CunaWithdrawalFlag",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CunaParticipationId",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CunaCompOptionCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CunaStatusReason",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CunaCancelReason",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CunaDistributionChannel",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CunaBirthDate",
+                        "type": "date"
+                    },
+                    {
+                        "name": "CunaMVAAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CunaPricingSpreadamount",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CunaOptionBudgetamount",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CunaCashValueMVAAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 3
+                    },
+                    {
+                        "name": "CunaCommRate",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ProductType",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AdminPlanCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "MortGroupFieldOne",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "AnnuityData"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DepositTransaction')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {}
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DepositHistory')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "DepositHistorySKey",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "PolicyNumber",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SequenceNumber",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "IssueDay",
+                        "type": "date"
+                    },
+                    {
+                        "name": "PremiumYear",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "PremiumMonth",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "PremiumAmount",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CreateUser",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CreateTimestamp",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ModifyUser",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ModifyTimestamp",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "SourceSystemId",
+                        "type": "smallint",
+                        "precision": 5
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "DepositHistory"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DepositInformation')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "DepositInformationSKey",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "PolicyNumber",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CellName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CFundInd",
+                        "type": "char"
+                    },
+                    {
+                        "name": "FundType",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Term",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "DepositYear",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "DeposiMonth",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "DepositDate",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "DeopositValue",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "DepositCappingRate",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DepositFloorRate",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PriorAnniversaryAV",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EIAInterestCreditRate",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "InitIndexRate",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "InvestmentAccountId",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "CurrentIndex",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "CreateUser",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CreateTimestamp",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ModifyUser",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ModifyTimestamp",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "SourceSystemId",
+                        "type": "smallint",
+                        "precision": 5
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "DepositInformation"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AnnuityHub_To_Axis_File_Path')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage_AnnuityHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Files"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileSystem": "annuityhub-to-axis-files"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage_AnnuityHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AdfAuditLog')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "RunID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "PipelineName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "StartTime",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "EndTime",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "Status",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ErrorMessage",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ExecTime",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "AdfAuditLog"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AnnuityHubControlTable')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "ValuationDate",
+                        "type": "date"
+                    },
+                    {
+                        "name": "PipelineName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SourceEntityName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SourceEntityValue",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TargetEntityName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TargetEntityValue",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "AnnuityHubControlTable"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PolicyKey')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "PolicyKeySKey",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "CompanyCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CreateUser",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CreateTimestamp",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    },
+                    {
+                        "name": "PolicyNumber",
+                        "type": "varbinary"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "PolicyKey"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PolicyDetails')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "POLICY_NO",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CHANNEL",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CELL_NAME",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "GENDER",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "C_FUND_IND",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ISS_AGE",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "ISSUE_YEAR",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "ISSUE_MONTH",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "ISSUE_DAY",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "POLICY_SIZE",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CURRENT_PHASE",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "PRICING_MORT",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "STAT_MORT",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "COMP_OPTION",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "COMM_TABLE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CASH_VALUE",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CURRENT_SNFL_FV",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "SNFL_TERM",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "SNFL_RATE",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "WITHDRAWALS_YTD",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "GUAR_PERIOD",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "TERM",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "HEDGE_BUDGET",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "RC_TARGET",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "VAR_TARGET",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "SP_RC_TARGET",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "EAFE_RC_TARGET",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 5
+                    },
+                    {
+                        "name": "SP_GROWTH_TARGET",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "SP_SECURE_TARGET",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "EAFE_GROWTH_TARGET",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "EAFE_SECURE_TARGET",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "TOT_PREM",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "DEP_CAP_1",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_CAP_2",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_CAP_3",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_CAP_4",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_FLR_1",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_FLR_2",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_FLR_3",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_FLR_4",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PRIOR_ANNIV_AV",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 4
+                    },
+                    {
+                        "name": "COMPANY_CODE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ISSUE_STATE",
+                        "type": "char"
+                    },
+                    {
+                        "name": "RESIDENT_STATE",
+                        "type": "char"
+                    },
+                    {
+                        "name": "PREMIUM_MODE",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "CUNA_POLICY_STATUS",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CUNA_PAID_UP_INDICATOR",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CUNA_TAX_QUAL_CODE",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CUNA_CREDIT_UNION_ID",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "CUNA_INDEX_PERIOD",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "CUNA_1YEAR_INDICATOR",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "CUNA_WITHDRAWAL_FLAG",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CUNA_PARTICIPATING_ID",
+                        "type": "char"
+                    },
+                    {
+                        "name": "CUNA_COMP_OPTION",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CUNA_STATUS_REASON",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CUNA_CANCEL_REASON",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CUNA_DIST_CHANL",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CUNA_BIRTH_DATE",
+                        "type": "date"
+                    },
+                    {
+                        "name": "CUNA_MVA_AMOUNT",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CUNA_PRICING_SPREAD",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CUNA_OPTION_BUDGET",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 2
+                    },
+                    {
+                        "name": "CUNA_CASH_VALUE_MVA",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 3
+                    },
+                    {
+                        "name": "CUNA_COMM_RATE",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PRODUCT_TYPE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ADMIN_PLAN_CODE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "MORT_GROUP_FIELD1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "VALUATIONDATE",
+                        "type": "date"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "PolicyDetails"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PolicyFundDetails')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "POLICY_NO",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CELL_NAME",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "C_FUND_IND",
+                        "type": "char"
+                    },
+                    {
+                        "name": "FUND_TYPE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "TERM",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "DEP_YYYY",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "DEP_MM",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "DEP_DD",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "DEP_VAL",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "DEP_CAP",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "DEP_FLR",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PRIOR_ANNIV_AV",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EIA_INT_CRED",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "INIT_INDEX",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "INV_ACCT_ID",
+                        "type": "bigint",
+                        "precision": 19
+                    },
+                    {
+                        "name": "CURR_INDEX",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "VALUATIONDATE",
+                        "type": "date"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "PolicyFundDetails"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FundTransactionDetails')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "POLICY_NO",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SEQUENCE_NUMBER",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ISSUE_DAY",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "PREM_YYYY",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "PREM_MM",
+                        "type": "smallint",
+                        "precision": 5
+                    },
+                    {
+                        "name": "PREM_AMT",
+                        "type": "decimal",
+                        "precision": 11,
+                        "scale": 2
+                    },
+                    {
+                        "name": "VALUATIONDATE",
+                        "type": "date"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "FundTransactionDetails"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Axis_Server_File_Path')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "FileServer_Axis",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Files"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "FileServerLocation"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/FileServer_Axis')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ComissionRateDetails')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "CompanyCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "PolicyNumber",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "MeasurementValueGDC",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "MeasurementValueCommission",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "ComissionRateDetails"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TrueComp')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "FileServer_TrueComp",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Files"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "FileServerLocation",
+                        "fileName": "TrueComp.tbl"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/FileServer_TrueComp')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PolyFeeds_PricingSpreadHistory')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "SqlServer_PolyFeeds_PricingSpread",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [
+                    {
+                        "name": "ID",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "ProductionID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LowCalendarDate",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SPREAD_COG",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FLAG",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "InitialYield",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "PricingSpreadHistory"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/SqlServer_PolyFeeds_PricingSpread')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/File_PricingSpreadHistory')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage_AnnuityHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Files"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": "PricingSpreadHistory.csv",
+                        "fileSystem": "pricing-spread"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage_AnnuityHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AnnHub_PricingSpreadHistory')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureSqlDatabase_AnnuityDataHub",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis/Tables"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "ID",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "ProductionID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LowCalendarDate",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SPREAD_COG",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FLAG",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "InitialYield",
+                        "type": "decimal",
+                        "precision": 6,
+                        "scale": 4
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "PricingSpreadHistory"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase_AnnuityDataHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Generic_File_Generation')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "File_Generation",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": {
+                                    "value": "@pipeline().parameters.source_query",
+                                    "type": "Expression"
+                                },
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "Generic_Table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "table_name": {
+                                        "value": "@pipeline().parameters.source_value",
+                                        "type": "Expression"
+                                    }
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "Generic_File",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "file_name": {
+                                        "value": "@pipeline().parameters.target_value",
+                                        "type": "Expression"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "source_value": {
+                        "type": "string"
+                    },
+                    "target_value": {
+                        "type": "string"
+                    },
+                    "source_query": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-11-27T19:48:57Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/Generic_Table')]",
+                "[concat(variables('factoryId'), '/datasets/Generic_File')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Annuity_Data_File_Generation')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Populate_AnnuityData_Table",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "with dep_cap_flr_rates as (\nselect fund.FundId as FundId,\nPolicyFund.StartPeriodIndexRate as INIT_INDEX,\nPolicyFund.CurrentCreditRate as CURR_INDEX,\ndeposit_trans.DepositAmount as DEP_VAL,\ncase\n\twhen fund.FundId = 'EIA 1 YR' then policyfund.CappingRate/100 \nend\tas DEP_CAP_1,\ncase\n\twhen fund.FundId = 'MINGUAR' then policyfund.CappingRate/100 \nend\tas DEP_CAP_2,\ncase\n\twhen fund.FundId = 'MINGUAR7' then policyfund.CappingRate/100 \nend\tas DEP_CAP_3,\ncase\n\twhen fund.FundId = 'MINGUAR10' then policyfund.CappingRate/100 \nend\tas DEP_CAP_4,\n\ncase\n\twhen fund.FundId = 'EIA 1 YR' then policyfund.FloorRate/100 \nend\tas DEP_FLR_1,\ncase\n\twhen fund.FundId = 'MINGUAR' then policyfund.FloorRate/100 \nend\tas DEP_FLR_2,\ncase\n\twhen fund.FundId = 'MINGUAR7' then policyfund.FloorRate/100 \nend\tas DEP_FLR_3,\ncase\n\twhen fund.FundId = 'MINGUAR10' then policyfund.FloorRate/100 \nend\tas DEP_FLR_4\nfrom dbo.PolicyFund policyfund \t\nleft outer join dbo.DepositTransaction deposit_trans\n\ton PolicyFund.PolicyFundSKey = deposit_trans.PolicyFundSKey\nleft outer join dbo.Fund fund\non PolicyFund.FundSKey = fund.FundSKey\n),\ngrowth_rates as(\nselect dep_cap_flr_rates.*,\ncase\n\twhen dep_cap_flr_rates.FundId = 'EIA 1 YR' AND dep_cap_flr_rates.INIT_INDEX > 1\n\t\tthen GREATEST(LEAST(dep_cap_flr_rates.DEP_CAP_1,dep_cap_flr_rates.CURR_INDEX/dep_cap_flr_rates.INIT_INDEX-1),dep_cap_flr_rates.DEP_FLR_1)\nend\tas GROWTH_RATE_1,\ncase\n\twhen dep_cap_flr_rates.FundId = 'MINGUAR' AND dep_cap_flr_rates.INIT_INDEX > 1\n\t\tthen GREATEST(LEAST(dep_cap_flr_rates.DEP_CAP_2,dep_cap_flr_rates.CURR_INDEX/dep_cap_flr_rates.INIT_INDEX-1),dep_cap_flr_rates.DEP_FLR_2)\nend\tas GROWTH_RATE_2,\ncase\n\twhen dep_cap_flr_rates.FundId = 'MINGUAR7' AND dep_cap_flr_rates.INIT_INDEX > 1\n\t\tthen GREATEST(LEAST(dep_cap_flr_rates.DEP_CAP_3,dep_cap_flr_rates.CURR_INDEX/dep_cap_flr_rates.INIT_INDEX-1),dep_cap_flr_rates.DEP_FLR_3)\nend\tas GROWTH_RATE_3,\ncase\n\twhen dep_cap_flr_rates.FundId = 'MINGUAR10' AND dep_cap_flr_rates.INIT_INDEX > 1\n\t\tthen GREATEST(LEAST(dep_cap_flr_rates.DEP_CAP_4,dep_cap_flr_rates.CURR_INDEX/dep_cap_flr_rates.INIT_INDEX-1),dep_cap_flr_rates.DEP_FLR_4)\nend\tas GROWTH_RATE_4\n\nfrom dep_cap_flr_rates\n),\nprior_anniv_val as(\nselect growth_rates.*,\ncase\n\twhen growth_rates.FundId = 'EIA 1 YR' then growth_rates.DEP_VAL / (1 + growth_rates.GROWTH_RATE_1)\nend\tas PRIOR_ANNIV_VAL_1,\ncase\n\twhen growth_rates.FundId = 'MINGUAR' then growth_rates.DEP_VAL / (1 + growth_rates.GROWTH_RATE_2)\nend\tas PRIOR_ANNIV_VAL_2,\ncase\n\twhen growth_rates.FundId = 'MINGUAR7' then growth_rates.DEP_VAL / (1 + growth_rates.GROWTH_RATE_3)\nend\tas PRIOR_ANNIV_VAL_3,\ncase\n\twhen growth_rates.FundId = 'MINGUAR10' then growth_rates.DEP_VAL / (1 + growth_rates.GROWTH_RATE_4)\nend\tas PRIOR_ANNIV_VAL_4\nfrom growth_rates\n)\nselect DISTINCT\npolicykey.PolicyKeySKey as POLICY_NO,\n-- -99 POLICY_NO,\npolicy.SourcingChannel as CHANNEL,\nproduct.ProductCode as CELL_NAME,\npolicyPartyRelation.GenderIndicator as GENDER,\n--PolicyFund.C_fund_IND as C_fund_IND,\n'FILL_ME' as C_FUND_IND,\npolicyPartyRelation.PolicyIssueAgeInYear as ISS_AGE,\nYEAR(policy.IssueDate) as ISSUE_YEAR,\nMONTH(policy.IssueDate) as ISSUE_MONTH,\nDAY(policy.IssueDate) as ISSUE_DAY,\npolicy.PolicyAmount as POLICY_SIZE,\n0 as CURRENT_PHASE,\ncase \n\twhen policyPartyRelation.GenderIndicator = 'M' then '1994 US MGDB, Age Last, Male'\n\telse '1994 US MGDB, Age Last, Female'\nend as PRICING_MORT,\ncase \n\twhen policyPartyRelation.GenderIndicator = 'M' then 'Annuity 2000 Male ANB'\n\telse 'Annuity 2000 Female ANB'\nend as STAT_MORT,\ncommissionoption.CommissionOptionCode as COMP_OPTION,\n/*case \n\twhen policy.PolicyTermInMonths = 05 then 'MH Commission Option ' + policy.CommissionOptionCode\n\telse 'MH Commission Option ' + policy.CommissionOptionCode\nend as COMM_TABLE,*/\n'MH Commission Option ' + commissionoption.CommissionOptionCode as COMM_TABLE,\npolicy.SurrenderAmount as CASH_VALUE,\ncase \n\twhen policyfund.MonthEndIndexAmount > 0 then policy.SurrenderAmount * 0.875\n\telse policy.SurrenderAmount\nend as CURRENT_SNFL_FV,\n0 as SNFL_TERM,\npolicy.SNFLRate as SNFL_RATE,\n0 as WITHDRAWALS_YTD,\npolicy.InitialGuaranteePeriodInMonths as GUAR_PERIOD,\n12 as TERM,\npricingSpread.InitialYield - pricingSpread.SPREAD_COG as HEDGE_BUDGET,\npolicyfund.SPREBalancePercent + policyfund.EAFERebalancePercent + policyfund.RussellRebalancePercent as RC_TARGET,\n-99999  as VAR_TARGET,\n--policyfund.SPREBalancePercent/(policyfund.SPREBalancePercent + policyfund.EAFERebalancePercent + policyfund.RussellRebalancePercent) as SP_RC_TARGET,\n--policyfund.EAFERebalancePercent/(policyfund.SPREBalancePercent + policyfund.EAFERebalancePercent + policyfund.RussellRebalancePercent) as EAFE_RC_TARGET,\ncase\n\twhen fund.FundId = '6SPGRO' then policyfund.PremiumAllocationPercent\nend as SP_GROWTH_TARGET,\ncase\n\twhen fund.FundId = '6SPSEC' then policyfund.PremiumAllocationPercent\nend as SP_SECURE_TARGET,\ncase\n\twhen fund.FundId = '6EAGRO' then policyfund.PremiumAllocationPercent\nend as EAFE_GROWTH_TARGET,\ncase\n\twhen fund.FundId = '6EASEC' then policyfund.PremiumAllocationPercent\nend as EAFE_SECURE_TARGET,\npolicy.SinceIssueDatePremiumAmount as TOT_PREM,\n\nprior_anniv_val.DEP_CAP_1,\nprior_anniv_val.DEP_CAP_2,\nprior_anniv_val.DEP_CAP_3,\nprior_anniv_val.DEP_CAP_4,\n\nprior_anniv_val.DEP_FLR_1,\nprior_anniv_val.DEP_FLR_2,\nprior_anniv_val.DEP_FLR_3,\nprior_anniv_val.DEP_FLR_4,\n\nprior_anniv_val.PRIOR_ANNIV_VAL_1 + prior_anniv_val.PRIOR_ANNIV_VAL_2 + prior_anniv_val.PRIOR_ANNIV_VAL_3 + prior_anniv_val.PRIOR_ANNIV_VAL_4 as PRIOR_ANNIV_AV,\ncompany.CompanyCode as COMPANY_CODE,\nissuestate.StateCode as ISSUE_STATE,\nresidentstate.StateCode as RESIDENT_STATE,\n0 as PREMIUM_MODE,\npolicystatus.PolicyStatusCode as CUNA_POLICY_STATUS,\npaidupstatus.PaidUpStatusCode as CUNA_PAID_UP_INDICATOR,\ntaxqualification.TaxQualificationCode as CUNA_TAX_QUAL_CODE,\npolicy.CreditUnionCode as CUNA_CREDIT_UNION_ID,\npolicy.InitialGuaranteePeriodInMonths/12 as CUNA_INDEX_PERIOD,\n--case\n--\twhen policy.PolicyRenewedOneYearIndicator = 'T' then 1\n--\telse 0\n--end as CUNA_1YEAR_INDICATOR,\nCAST(policy.PolicyRenewedOneYearIndicator AS INT) as CUNA_1YEAR_INDICATOR,\ncase \n\twhen policy.SinceIssueWithdrawalAmount is not null or policy.SinceIssueWithdrawalAmount <> 0 then 'Y'\n\telse 'N'\nend as CUNA_WITHDRAWAL_FLAG,\ncase\n\twhen product.ProductCode = 'IGIA-05' then 'P'\n\twhen product.ProductCode = 'IGIA-12' then 'N'\n\twhen product.ProductCode = 'MGIA-13' then 'NP'\nend as CUNA_PARTICIPATING_ID,\ncommissionoption.CommissionOptionCode as CUNA_COMP_OPTION,\ncancelreason.ReasonCode as CUNA_STATUS_REASON,\nstatusreason.ReasonCode as CUNA_CANCEL_REASON,\n--'TO_DO' as CUNA_FUND_INDICATOR, /* Repeated */\npolicy.DistributionChannel as CUNA_DIST_CHANL,\npolicyPartyRelation.BirthDate as CUNA_BIRTH_DATE,\npolicy.MVAAmount as CUNA_MVA_AMOUNT,\npricingSpread.SPREAD_COG as CUNA_PRICING_SPREAD,\npricingSpread.InitialYield - pricingSpread.SPREAD_COG as CUNA_OPTION_BUDGET,\npolicy.MVAAmount + policy.SurrenderAmount as CUNA_CASH_VALUE_MVA,\n-99 as CUNA_COMM_RATE,\nproduct.ProductCode as PRODUCT_TYPE,\n-99 as ADMIN_PLAN_CODE,\ncase\n\twhen residentstate.StateCode = 'MA' and policy.IssueDate > '2009-01-01' then 'U'\n\telse 'S'\nend as MORT_GROUP_FIELD1\n\nfrom dbo.Policy policy\nleft outer join dbo.Product product\non policy.ProductSKey = product.ProductSKey\nleft outer join dbo.CommissionOption commissionoption\non policy.CommissionOptionSKey = commissionoption.CommissionOptionSKey\nleft outer join dbo.Reason cancelreason\non policy.CancelReasonSKey = cancelreason.ReasonSKey\nleft outer join dbo.Reason statusreason\non policy.StatusReasonSKey = statusreason.ReasonSKey\nleft outer join dbo.State residentstate\non policy.ResidentStateSKey = residentstate.StateSKey\nleft outer join dbo.State issuestate\non policy.IssueStateSKey = issuestate.StateSKey\nleft outer join dbo.PolicyStatus policystatus\non policy.PolicyStatusSKey = policystatus.PolicyStatusSKey\nleft outer join dbo.PaidUpStatus paidupstatus\non policy.PaidUpStatusSkey = paidupstatus.PaidUpStatusSKey\nleft outer join dbo.TaxQualification taxqualification\non policy.TaxQualificationSKey = taxqualification.TaxQualificationSKey\n\nleft outer join dbo.PolicyKey policykey \n        ON policy.PolicyKeySKey=policykey.PolicyKeySKey\nleft outer join dbo.Company company\non policykey.CompanySKey = company.CompanySKey\n\n\nleft outer join dbo.PolicyPartyRelation policyPartyRelation \n        ON policy.PolicyKeySKey=policyPartyRelation.PolicyKeySKey\t\t\nleft outer join dbo.PolicyFund policyfund \n        ON policy.PolicyKeySKey=policyfund.PolicyKeySKey\t\t\nleft outer join dbo.DepositTransaction deposit_trans\n\ton policyfund.PolicyFundSKey = deposit_trans.PolicyFundSKey\nleft outer join dbo.Fund fund\n\ton fund.FundId = fund.FundId\nleft outer join PricingSpreadHistory  pricingSpread \n\ton RIGHT(pricingSpread.ProductionID,2) = day(policy.IssueDate)\n\tand month(pricingSpread.LowCalendarDate) = month(policy.IssueDate)\n\tand year(pricingSpread.LowCalendarDate) = year(policy.IssueDate)\n\tand pricingSpread.Flag = 1\n\tand pricingSpread.ProductionID like '%ZIA%'\nleft outer join prior_anniv_val prior_anniv_val\n\ton fund.FundId = prior_anniv_val.FundId\n",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "delete from dbo.PolicyDetails",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "AnnuityData",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "PolicyDetails",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Generic_File_Generation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Populate_AnnuityData_Table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Generic_File_Generation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "source_value": "dbo.PolicyDetails",
+                                "target_value": "AnnData.csv",
+                                "source_query": "select POLICY_NO,CHANNEL,CELL_NAME,GENDER,C_FUND_IND,ISS_AGE,ISSUE_YEAR,ISSUE_MONTH,ISSUE_DAY,POLICY_SIZE,CURRENT_PHASE,PRICING_MORT,STAT_MORT,COMP_OPTION,COMM_TABLE,CASH_VALUE,CURRENT_SNFL_FV,SNFL_TERM,SNFL_RATE,WITHDRAWALS_YTD,GUAR_PERIOD,TERM,HEDGE_BUDGET,RC_TARGET,VAR_TARGET,SP_RC_TARGET,EAFE_RC_TARGET,SP_GROWTH_TARGET,SP_SECURE_TARGET,EAFE_GROWTH_TARGET,EAFE_SECURE_TARGET,TOT_PREM,DEP_CAP_1,DEP_CAP_2,DEP_CAP_3,DEP_CAP_4,DEP_FLR_1,DEP_FLR_2,DEP_FLR_3,DEP_FLR_4,PRIOR_ANNIV_AV,COMPANY_CODE,ISSUE_STATE,RESIDENT_STATE,PREMIUM_MODE,CUNA_POLICY_STATUS,CUNA_PAID_UP_INDICATOR,CUNA_TAX_QUAL_CODE,CUNA_CREDIT_UNION_ID,CUNA_INDEX_PERIOD,CUNA_1YEAR_INDICATOR,CUNA_WITHDRAWAL_FLAG,CUNA_PARTICIPATING_ID,CUNA_COMP_OPTION,CUNA_STATUS_REASON,CUNA_CANCEL_REASON,CUNA_DIST_CHANL,CUNA_BIRTH_DATE,CUNA_MVA_AMOUNT,CUNA_PRICING_SPREAD,CUNA_OPTION_BUDGET,CUNA_CASH_VALUE_MVA,CUNA_COMM_RATE,PRODUCT_TYPE,ADMIN_PLAN_CODE,MORT_GROUP_FIELD1\nfrom dbo.PolicyDetails"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Truncate TrueComp _ComissionRateDetails",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "Generic_File_Generation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "/*begin\ndelete from dbo.ComissionRateDetails \nend\n*/\nselect 1 as id;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "ComissionRateDetails",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-01-06T11:08:39Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/AnnuityData')]",
+                "[concat(variables('factoryId'), '/datasets/PolicyDetails')]",
+                "[concat(variables('factoryId'), '/pipelines/Generic_File_Generation')]",
+                "[concat(variables('factoryId'), '/datasets/ComissionRateDetails')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Deposit_Hist_File_Generation')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Populate_DepositHistory_Table",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select  \npolicykey.PolicyKeySKey as POLICY_NO,\n-- -999 as POLICY_NO,\n           ROW_NUMBER() OVER (order by policy.IssueDate) SEQUENCE_NUMBER,\n       DAY(policy.IssueDate) as ISSUE_DAY,\n       YEAR(deposit_trans.PremiumDepositDate) as PREM_YYYY,\n       MONTH(deposit_trans.PremiumDepositDate) as PREM_MM,\n       deposit_trans.DepositAmount as PREM_AMT          \nFROM dbo.Policy policy\nLEFT JOIN dbo.PolicyKey policykey \n        ON policy.PolicyKeySKey=policykey.PolicyKeySKey\nLEFT JOIN dbo.PolicyFund policyfund \n        ON policy.PolicyKeySKey=policyfund.PolicyKeySKey\nLEFT JOIN dbo.DepositTransaction deposit_trans \n        ON policyfund.PolicyFundSKey=deposit_trans.PolicyFundSKey",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "delete from dbo.FundTransactionDetails",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DepositHistory",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "FundTransactionDetails",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Generic_File_Generation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Populate_DepositHistory_Table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Generic_File_Generation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "source_value": "dbo.FundTransactionDetails",
+                                "target_value": "DepHist.csv",
+                                "source_query": "select \nPOLICY_NO,SEQUENCE_NUMBER,ISSUE_DAY,PREM_YYYY,PREM_MM,PREM_AMT from dbo.FundTransactionDetails"
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-01-06T10:45:20Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DepositHistory')]",
+                "[concat(variables('factoryId'), '/datasets/FundTransactionDetails')]",
+                "[concat(variables('factoryId'), '/pipelines/Generic_File_Generation')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Deposit_Info_File_Generation')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Populate_DepInfo_Table",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select\npolicykey.PolicyKeySKey as POLICY_NO,\n-- 99999 as POLICY_NO,\nproduct.ProductCode as CELL_NAME,\n'DO' as C_FUND_IND,\nfundtype.FundTypeCode as FUND_TYPE,\npolicy.PolicyTermInMonths as TERM,\nYEAR(deposit_trans.PremiumDepositDate) as  DEP_YYYY,\nMONTH(deposit_trans.PremiumDepositDate) as DEP_MM,\nDAY(deposit_trans.PremiumDepositDate) as  DEP_DD,\ndeposit_trans.DepositAmount as DEP_VAL,\nPolicyFund.CappingRate as DEP_CAP,\nPolicyFund.FloorRate as DEP_FLR,\nPolicyFund.PriorMonthAnniversaryIndexRate as PRIOR_ANNIV_AV,\nPolicyFund.CurrentCreditRate as EIA_INT_CRED,\nPolicyFund.StartPeriodIndexRate as INIT_INDEX,\ninvest_acc.InvestmentAccountCode as INV_ACCT_ID,\nPolicyFund.CurrentCreditRate as CURR_INDEX\nfrom dbo.PolicyFund PolicyFund\nleft outer join dbo.Policy policy\non PolicyFund.PolicyKeySKey = policy.PolicyKeySKey\nleft outer join dbo.Product product\non policy.ProductSKey = product.ProductSKey\nleft outer join dbo.PolicyKey policykey\non PolicyFund.PolicyKeySKey = policykey.PolicyKeySKey\nleft outer join dbo.DepositTransaction deposit_trans\non PolicyFund.PolicyFundSKey = deposit_trans.PolicyFundSKey\nleft outer join dbo.InvestmentAccount invest_acc\non deposit_trans.InvestmentAccountSKey = invest_acc.InvestmentAccountSKey\nleft outer join dbo.Fund fund\non PolicyFund.FundSKey = fund.FundSKey\nleft outer join dbo.FundType fundtype\non fund.FundTypeSKey = fundtype.FundTypeSKey",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "delete from dbo.PolicyFundDetails",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DepositInformation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "PolicyFundDetails",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Generic_File_Generation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Populate_DepInfo_Table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Generic_File_Generation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "source_value": "dbo.PolicyFundDetails",
+                                "target_value": "DepInfo.csv",
+                                "source_query": "select POLICY_NO,CELL_NAME,C_FUND_IND,FUND_TYPE,TERM,DEP_YYYY,DEP_MM,DEP_DD,DEP_VAL,DEP_CAP,DEP_FLR,PRIOR_ANNIV_AV,EIA_INT_CRED,INIT_INDEX,INV_ACCT_ID,CURR_INDEX from [dbo].[PolicyFundDetails]"
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-01-06T09:54:30Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/DepositInformation')]",
+                "[concat(variables('factoryId'), '/datasets/PolicyFundDetails')]",
+                "[concat(variables('factoryId'), '/pipelines/Generic_File_Generation')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Master_Input_Pipeline')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Input_Sub_Pipeline",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Pre_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Input_Sub_Pipeline",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Pre_Processing_Validation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Ingest_External_System_To_AnnuityHub",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Pre_Processing_Validation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Post_Processing_Validation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Input_Sub_Pipeline",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Post_Processing_Validation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Log Pipeline Start",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "PipelineName": {
+                                    "value": "@pipeline().Pipeline",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log Pipeline End",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "File_Transfer_AnnuityHub_To_Axis",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "PipelineName": {
+                                    "value": "@pipeline().Pipeline",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Control_Table",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Post_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Control_Table",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Log Pipeline Error0",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Pre_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log_Error",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "ErrorMessage": {
+                                    "value": "@activity('Pre_Processing_Validation').output",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log Pipeline Error1",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Input_Sub_Pipeline",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log_Error",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "ErrorMessage": {
+                                    "value": "@activity('Input_Sub_Pipeline').output",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log Pipeline Error2",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Post_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log_Error",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "ErrorMessage": {
+                                    "value": "@activity('Post_Processing_Validation').output",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log Pipeline Error3",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Control_Table",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log_Error",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "ErrorMessage": {
+                                    "value": "@activity('Control_Table').output",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "File_Transfer_AnnuityHub_To_Axis",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Control_Table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "File_Transfer_AnnuityHub_To_Axis",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Log Pipeline Error4",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "File_Transfer_AnnuityHub_To_Axis",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log_Error",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Ingest_External_System_To_AnnuityHub",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Log Pipeline Start",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Ingest_External_System_To_AnnuityHub",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Auditing_Log_Error",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Ingest_External_System_To_AnnuityHub",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log_Error",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-14T23:52:09Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/Input_Sub_Pipeline')]",
+                "[concat(variables('factoryId'), '/pipelines/Pre_Processing_Validation')]",
+                "[concat(variables('factoryId'), '/pipelines/Post_Processing_Validation')]",
+                "[concat(variables('factoryId'), '/pipelines/Auditing_Log')]",
+                "[concat(variables('factoryId'), '/pipelines/Control_Table')]",
+                "[concat(variables('factoryId'), '/pipelines/Auditing_Log_Error')]",
+                "[concat(variables('factoryId'), '/pipelines/File_Transfer_AnnuityHub_To_Axis')]",
+                "[concat(variables('factoryId'), '/pipelines/Ingest_External_System_To_AnnuityHub')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Pre_Processing_Validation')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Lookup1",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select count(1) as ct from dbo.PolicyKey where ValuationDate = EOMONTH(GETDATE(),-1)\n--select 1 as ct\n",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "Fund",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": true
+                        }
+                    },
+                    {
+                        "name": "If Condition1",
+                        "type": "IfCondition",
+                        "dependsOn": [
+                            {
+                                "activity": "Lookup1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@activity('Lookup1').output.firstRow.ct",
+                                "type": "Expression"
+                            },
+                            "ifFalseActivities": [
+                                {
+                                    "name": "Fail1",
+                                    "type": "Fail",
+                                    "dependsOn": [],
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "message": "No Data",
+                                        "errorCode": "9999"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "variables": {
+                    "Lookup_Value": {
+                        "type": "String"
+                    },
+                    "ErrorMsg": {
+                        "type": "String"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-15T13:00:30Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/Fund')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Post_Processing_Validation')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Get Metadata1",
+                        "type": "GetMetadata",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "AnnuityHub_To_Axis_File_Path",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "fieldList": [
+                                "childItems"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "DelimitedTextReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "If Condition1",
+                        "type": "IfCondition",
+                        "dependsOn": [
+                            {
+                                "activity": "Get Metadata1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@equals(length(activity('Get Metadata1').output.childItems),3)",
+                                "type": "Expression"
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "variables": {
+                    "file_count": {
+                        "type": "String"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-11-29T22:14:49Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/AnnuityHub_To_Axis_File_Path')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Test_Audit')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Auditing_Log_Start",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "PipelineName": {
+                                    "value": "@pipeline().Pipeline",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Pre_Processing_Validation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Auditing_Log_Start",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Pre_Processing_Validation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Auditing_Log",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Post_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Post_Processing_Validation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Pre_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Post_Processing_Validation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-15T12:31:39Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/Auditing_Log')]",
+                "[concat(variables('factoryId'), '/pipelines/Pre_Processing_Validation')]",
+                "[concat(variables('factoryId'), '/pipelines/Post_Processing_Validation')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Control_Table')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Lookup1",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "delete from dbo.AnnuityHubControlTable;\n\ninsert into dbo.AnnuityHubControlTable\n(ValuationDate,PipelineName,ElementName,SourceEntityName,SourceEntityValue,TargetEntityName,TargetEntityValue)\n\nselect EOMONTH(GETDATE(),-1),'INPUT_PIPELINE','PolicyNumber',\n'PolicyKey',\n( select count(PolicyNumber) from dbo.PolicyKey where ValuationDate = EOMONTH(GETDATE(),-1) ),\n'PolicyFundDetails',\n( select count(POLICY_NO) from [dbo].[PolicyFundDetails] )\nUNION ALL\nselect EOMONTH(GETDATE(),-1),'INPUT_PIPELINE','PolicyNumber',\n'PolicyKey',\n( select count(PolicyNumber) from dbo.PolicyKey where ValuationDate = EOMONTH(GETDATE(),-1) ),\n'FundTransactionDetails',\n( select count(POLICY_NO) from [dbo].[FundTransactionDetails] )\nUNION ALL\nselect \nEOMONTH(GETDATE(),-1),'INPUT_PIPELINE','PolicyNumber',\n'PolicyKey',\n( select count(PolicyNumber) from dbo.PolicyKey where ValuationDate = EOMONTH(GETDATE(),-1) ),\n'PolicyDetails',\n( select count(POLICY_NO) from [dbo].[PolicyDetails] )\nUNION ALL\nselect \nEOMONTH(GETDATE(),-1),'INPUT_PIPELINE','DepositAmount',\n'DepositTransaction',\n( select sum(DepositAmount) from dbo.DepositTransaction where ValuationDate = EOMONTH(GETDATE(),-1) ),\n'FundTransactionDetails',\n( select sum(PREM_AMT) from [dbo].[FundTransactionDetails] )\nUNION ALL\nselect \nEOMONTH(GETDATE(),-1),'INPUT_PIPELINE','PolicyAmount',\n'Policy',\n( select sum(PolicyAmount) from dbo.Policy where ValuationDate = EOMONTH(GETDATE(),-1) ),\n'PolicyDetails',\n( select sum(POLICY_SIZE) from [dbo].PolicyDetails )\nUNION ALL\nselect \nEOMONTH(GETDATE(),-1),'INPUT_PIPELINE','SurrenderAmount',\n'Policy',\n( select sum(SurrenderAmount) from dbo.Policy where ValuationDate = EOMONTH(GETDATE(),-1) ),\n'PolicyDetails',\n( select sum(CASH_VALUE) from [dbo].PolicyDetails )\n;\n\nselect 1 as id;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnnuityHubControlTable",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-14T21:27:14Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/AnnuityHubControlTable')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Input_Sub_Pipeline')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Deposit_Info_File_Generation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Deposit_Info_File_Generation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Deposit_Hist_File_Generation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Deposit_Info_File_Generation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Deposit_Hist_File_Generation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Annuity_Data_File_Generation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Deposit_Hist_File_Generation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Annuity_Data_File_Generation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-07T22:16:07Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/Deposit_Info_File_Generation')]",
+                "[concat(variables('factoryId'), '/pipelines/Deposit_Hist_File_Generation')]",
+                "[concat(variables('factoryId'), '/pipelines/Annuity_Data_File_Generation')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Test_Master_Input_Pipeline')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Pre_Processing_Validation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Auditing_Log_Start",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Pre_Processing_Validation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Post_Processing_Validation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Pre_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Post_Processing_Validation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Auditing_Log_Start",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "PipelineName": {
+                                    "value": "@pipeline().Pipeline",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Auditing_Log_Start1",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Pre_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "PipelineName": {
+                                    "value": "@pipeline().Pipeline",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Auditing_Log_Start2",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Post_Processing_Validation",
+                                "dependencyConditions": [
+                                    "Failed",
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "Auditing_Log",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "RunID": {
+                                    "value": "@pipeline().RunId",
+                                    "type": "Expression"
+                                },
+                                "PipelineName": {
+                                    "value": "@pipeline().Pipeline",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "variables": {
+                    "ErrorMessage": {
+                        "type": "String"
+                    },
+                    "Test": {
+                        "type": "String"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-11T23:46:29Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/Pre_Processing_Validation')]",
+                "[concat(variables('factoryId'), '/pipelines/Post_Processing_Validation')]",
+                "[concat(variables('factoryId'), '/pipelines/Auditing_Log')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Auditing_Log')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Lookup1",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": {
+                                    "value": "begin\n\tdeclare @check_row INT;\n\n\tselect @check_row = count(1)\n\tfrom [dbo].[AdfAuditLog]\n\twhere RunID = '@{pipeline().parameters.RunID}';\n\n\tif @check_row = 0\n\t\tinsert into dbo.AdfAuditLog (ValuationDate,RunID,PipelineName,StartTime,Status) values\n\t\t( (EOMONTH(GETDATE(),-1)), '@{pipeline().parameters.RunID}','@{pipeline().parameters.PipelineName}',CURRENT_TIMESTAMP,'STARTED');\n\n\telse\n                \n\t\tupdate [dbo].[AdfAuditLog]\n\t\tset \n\t\t\tStatus = 'COMPLETED',\n\t\t\tEndTime = CURRENT_TIMESTAMP,\n\t\t\tRunTime = cast (CURRENT_TIMESTAMP -\n\t\t\t    (Select StartTime from [dbo].[AdfAuditLog]\n                                                                where RunID = '@{pipeline().parameters.RunID}'\n                                                               )\n\t\t\t as time),\n\t\t/*\tRunTime = (\n                                             DATEDIFF(MINUTE,\n                                                              (Select StartTime from [dbo].[AdfAuditLog]\n                                                                where RunID = '@{pipeline().parameters.RunID}'\n                                                               ),\n                                                              CURRENT_TIMESTAMP\n                                              )\n\t\t\t\t\t\t),*/\n\t\t\tErrorMessage = null\n\t\twhere\n\t\t\tRunID = '@{pipeline().parameters.RunID}'\n\nend\n\nselect 1 as id;\n\n",
+                                    "type": "Expression"
+                                },
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AdfAuditLog",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "RunID": {
+                        "type": "string"
+                    },
+                    "PipelineName": {
+                        "type": "string"
+                    },
+                    "ErrorMessage": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-15T12:53:15Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/AdfAuditLog')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Auditing_Log_Error')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Lookup1",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": {
+                                    "value": "begin               \n\t\tupdate [dbo].[AdfAuditLog]\n\t\tset \n\t\t\tStatus = 'FAILED',\n\t\t\tEndTime = CURRENT_TIMESTAMP, \n      RunTime = cast (CURRENT_TIMESTAMP -\n\t\t\t    (Select StartTime from [dbo].[AdfAuditLog]\n                                                                where RunID = '@{pipeline().parameters.RunID}'\n                                                               )\n\t\t\t as time),\n                /*        RunTime = (\n                                             DATEDIFF(MINUTE,\n                                                              (Select StartTime from [dbo].[AdfAuditLog]\n                                                                where RunID = '@{pipeline().parameters.RunID}'\n                                                               ),\n                                                              CURRENT_TIMESTAMP\n                                              )\n                                    ), */\n\t\t\tErrorMessage = '@{pipeline().parameters.ErrorMessage}'\n\t\twhere\n\t\t\tRunID = '@{pipeline().parameters.RunID}'\nend\n\nselect 1 as id;\n\n",
+                                    "type": "Expression"
+                                },
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AdfAuditLog",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "RunID": {
+                        "type": "string"
+                    },
+                    "ErrorMessage": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-15T12:55:47Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/AdfAuditLog')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/File_Transfer_AnnuityHub_To_Axis')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Transfer Files From ADLS to Axis",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "wildcardFileName": "*",
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "FileServerWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".txt"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "AnnuityHub_To_Axis_File_Path",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "Axis_Server_File_Path",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-14T18:58:57Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/AnnuityHub_To_Axis_File_Path')]",
+                "[concat(variables('factoryId'), '/datasets/Axis_Server_File_Path')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Ingest_External_System_To_AnnuityHub')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Ingest PricingSpreadHistory",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Ingest TrueComp to ComissionRateDetails",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "delete from dbo.PricingSpreadHistory",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "PolyFeeds_PricingSpreadHistory",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "AnnHub_PricingSpreadHistory",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Ingest TrueComp to ComissionRateDetails",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "FileServerReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink"
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "type": "String",
+                                            "ordinal": 1
+                                        },
+                                        "sink": {
+                                            "name": "CompanyCode",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "type": "String",
+                                            "ordinal": 2
+                                        },
+                                        "sink": {
+                                            "name": "PolicyNumber",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "type": "String",
+                                            "ordinal": 3
+                                        },
+                                        "sink": {
+                                            "name": "MeasurementValueGDC",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "type": "String",
+                                            "ordinal": 4
+                                        },
+                                        "sink": {
+                                            "name": "MeasurementValueCommission",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    }
+                                ],
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "TrueComp",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "ComissionRateDetails",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Annuity_To_Axis"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-14T23:49:50Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/PolyFeeds_PricingSpreadHistory')]",
+                "[concat(variables('factoryId'), '/datasets/AnnHub_PricingSpreadHistory')]",
+                "[concat(variables('factoryId'), '/datasets/TrueComp')]",
+                "[concat(variables('factoryId'), '/datasets/ComissionRateDetails')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Test_Create_Table')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy data1",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "tableOption": "autoCreate",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "AdfAuditLog",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "Generic_Table",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "table_name": "test_create"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Playground"
+                },
+                "annotations": [],
+                "lastPublishTime": "2021-12-15T15:31:07Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/AdfAuditLog')]",
+                "[concat(variables('factoryId'), '/datasets/Generic_Table')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureSqlDatabase_AnnuityDataHub')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": "[parameters('AzureSqlDatabase_AnnuityDataHub_connectionString')]",
+                    "alwaysEncryptedSettings": {
+                        "alwaysEncryptedAkvAuthType": "ManagedIdentity"
+                    }
+                },
+                "connectVia": {
+                    "referenceName": "ahub-dev-integrationruntime",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/ahub-dev-integrationruntime')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureSqlDatabase_PolyFeeds_PricingSpread')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": "[parameters('AzureSqlDatabase_PolyFeeds_PricingSpread_connectionString')]"
+                },
+                "connectVia": {
+                    "referenceName": "ahub-dev-integrationruntime",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/ahub-dev-integrationruntime')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SqlServer_PolyFeeds_PricingSpread')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "SqlServer",
+                "typeProperties": {
+                    "connectionString": "[parameters('SqlServer_PolyFeeds_PricingSpread_connectionString')]",
+                    "userName": "[parameters('SqlServer_PolyFeeds_PricingSpread_properties_typeProperties_userName')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('SqlServer_PolyFeeds_PricingSpread_password')]"
+                    }
+                },
+                "connectVia": {
+                    "referenceName": "ahub-dev-integrationruntime",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/ahub-dev-integrationruntime')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FileServer_Axis')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "FileServer",
+                "typeProperties": {
+                    "host": "[parameters('FileServer_Axis_properties_typeProperties_host')]",
+                    "userId": "[parameters('FileServer_Axis_properties_typeProperties_userId')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('FileServer_Axis_password')]"
+                    }
+                },
+                "connectVia": {
+                    "referenceName": "ahub-dev-integrationruntime",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/ahub-dev-integrationruntime')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FileServer_TrueComp')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "FileServer",
+                "typeProperties": {
+                    "host": "[parameters('FileServer_TrueComp_properties_typeProperties_host')]",
+                    "userId": "[parameters('FileServer_TrueComp_properties_typeProperties_userId')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('FileServer_TrueComp_password')]"
+                    }
+                },
+                "connectVia": {
+                    "referenceName": "ahub-dev-integrationruntime",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/ahub-dev-integrationruntime')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage_AnnuityHub')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('AzureDataLakeStorage_AnnuityHub_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('AzureDataLakeStorage_AnnuityHub_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SaaHubAxis')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('SaaHubAxis_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('SaaHubAxis_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ahub-dev-integrationruntime')]",
+            "type": "Microsoft.DataFactory/factories/integrationRuntimes",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "SelfHosted",
+                "description": "self hosted IR description",
+                "typeProperties": {}
+            },
+            "dependsOn": []
+        }
+    ]
+}
